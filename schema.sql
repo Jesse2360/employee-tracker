@@ -1,0 +1,2 @@
+DROP DATABASE IF EXISTS employee__DB;
+CREATE DATABASE employee_DB;
