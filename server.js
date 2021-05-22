@@ -13,6 +13,8 @@ const connection = mysql.createConnection({
     database: 'employee_DB',
 });
 
+console.log('Welcome to Employee-Tracker');
+
     connection.connect((err) => {
         if (err) throw err;
         console.log(`connected as id ${connection.threadId}`);
@@ -59,12 +61,12 @@ function vamonos() {
                 break;
 
             default:
-                console.log(`error what you enter is not valid: ${answer.enter}`);
+                console.log(`error what you enter is not valid: ${answers.enter}`);
                 break;
         }
     });
 };
-
+// Adding Department
 function addDepartment() {
     inquirer.prompt([
         {
@@ -87,7 +89,7 @@ function addDepartment() {
                 })
             })
 };
-
+//Adding Employees
 const addEmployees = () => {
     connection.query('SELECT * FROM role', function (err, res) {
         if (err) throw err;
@@ -144,12 +146,38 @@ const addEmployees = () => {
         })
 })
 };
-
+//To view Departments
 function viewDepartment() {
     let query = 'SELECT * FROM department';
     connection.query(query, function(err, res) {
-        if(err)throw err;
+        if(err)throw error;
         console.table('departments:', res);
         vamonos();
     })
+};
+//To view Roles
+function viewRoles() {
+    let query = 'SELECT * FROM role';
+    connection.query(query, function(err, res){
+        if(err) throw error;
+        console.table('roles', res);
+        vamonos();
+    })
+};
+// To view Employees
+function viewEmployees() {
+    let query = 'SELECT * FROM employee';
+    connection.query(query, function(err, res){
+        if (err) throw error;
+        console.table('employees:', res);
+        vamonos();
+    })
+};
+//To update
+function updateEmployeeRoles(){
+
+};
+//To exit out
+function exit(){
+    connection.end();
 };
