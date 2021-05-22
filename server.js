@@ -16,25 +16,25 @@ const connection = mysql.createConnection({
     connection.connect((err) => {
         if (err) throw err;
         console.log(`connected as id ${connection.threadId}`);
-        connection.end();
+        //connection.end();
         vamonos();
     });
 
-const vamonos = () => {
+function vamonos() {
     inquirer.prompt({
         name: 'enter',
         type:'list',
         message: 'What would you like to do?',
-        choices: ['add department', 'add roles', 'add employees', 'view department',
-         'view roles', 'view employees', 'update employee roles'],
+        choices: ['add department', 'add employees', 'view department',
+         'view roles', 'view employees', 'update employee roles', 'exit'],
     })
-    .then((answers) => {
-        switch (answer.enter) {
+    .then(function (answers) {
+        switch (answers.enter) {
             case 'add department':
                 addDepartment();
                 break;
 
-            case 'add roles':
+            case 'add employees':
                 addEmployees();
                 break;
 
@@ -42,8 +42,20 @@ const vamonos = () => {
                 viewDepartment();
                 break;
 
+            case 'view roles':
+                viewRoles();
+                break;
+
+            case 'view eployees':
+                viewEmployees();
+                break;
+
             case 'update employee roles':
                 updateEmployeeRoles();
+                break;
+
+            case 'exit':
+                exit();
                 break;
 
             default:
@@ -53,64 +65,91 @@ const vamonos = () => {
     });
 };
 
-const addDepartment = () => {
+function addDepartment() {
     inquirer.prompt([
-    {
-        name: 'department_name',
-        type: 'input',
-        message: 'please enter department name',
-    },
-    ])
-    .then((answer) => {
-        connection.query('INSERT INTO department SET?',
+        {
+            name: 'department_name', 
+            type: 'input', 
+            message: 'Which department would you like to add?'
+        }
+    ]).then(function (answer) {
+        connection.query(
+        'INSERT INTO department SET ?',
             {
-                name: answer.department_name,
-            },
-            (err) => {
-                if (err) throw err;
-                console.log('added name success');
+                name: answer.department_name
+            });
+                let query = 'SELECT * FROM department';
+                connection.query(query, function(err, res) {
+                if(err)throw err;
+                console.log('Your department has been added!');
+                console.table('Departments:', res);
                 vamonos();
-            } 
-        );
-    });
+                })
+            })
 };
 
 const addEmployees = () => {
+    connection.query('SELECT * FROM role', function (err, res) {
+        if (err) throw err;
     inquirer.prompt([
         {
             name: 'first_name',
-            type: 'input',
-            message: 'please enter employee first name',
+            type: 'input', 
+            message: "What is the employee's fist name? ",
         },
         {
             name: 'last_name',
-            type: 'input',
-            message: 'please enter employee last name',
-        },
-        {
-            name: 'role_id',
-            type: 'input',
-            message: 'please enter employee role id',
+            type: 'input', 
+            message: "What is the employee's last name? "
         },
         {
             name: 'manager_id',
-            type: 'input',
-            message: 'please enter manager id',
+            type: 'input', 
+            message: "What is the employee's manager's ID? "
         },
-    ])
-    .then((answer) => {
-        connection.query('INSERT INTO employees SET ?',
+        {
+            name: 'role', 
+            type: 'list',
+            choices: function() {
+            let roleArray = [];
+            for (let i = 0; i < res.length; i++) {
+                roleArray.push(res[i].title);
+            }
+            return roleArray;
+            },
+            message: "What is this employee's role? "
+        }
+        ]).then(function (answer) {
+            let role_id;
+            for (let a = 0; a < res.length; a++) {
+                if (res[a].title == answer.role) {
+                    role_id = res[a].id;
+                    console.log(role_id)
+                }                  
+            }  
+            connection.query(
+            'INSERT INTO employee SET ?',
             {
                 first_name: answer.first_name,
                 last_name: answer.last_name,
-                role_id: answer.role_id,
                 manager_id: answer.manager_id,
+                role_id: role_id,
             },
-            (err) => {
+            function (err) {
                 if (err) throw err;
-                console.log('added employeee success');
+                console.log('Your employee has been added!');
+                console.table('employee', res);
                 vamonos();
-            }  
-        );
-    });
+            })
+        })
+})
+};
+
+function viewDepartment() {
+    let query = 'SELECT * FROM department';
+    connection.query(query, function(err, res) {
+        if(err)throw err;
+        console.table('departments:', res);
+        vamonos();
+    })
 };
