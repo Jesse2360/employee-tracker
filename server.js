@@ -13,12 +13,13 @@ const connection = mysql.createConnection({
     database: 'employee_DB',
 });
 
-console.log('Welcome to Employee-Tracker');
 
     connection.connect((err) => {
         if (err) throw err;
         console.log(`connected as id ${connection.threadId}`);
         //connection.end();
+        
+        console.log('\===== Welcome to Employee-Tracker =====/');
         vamonos();
     });
 
